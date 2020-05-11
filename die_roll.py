@@ -11,13 +11,14 @@ class Dice:
                 self.dice[i] =0
 
     def show_roll(self):    
-        print(self.dice)
+        print('dice rolled: ', self.dice)
 
     def result_roll(self):    
         roll = sum(self.dice)
         return roll
 
+"""
 dice = Dice()
 dice.roll()
-dice.show_roll()
-print(dice.result_roll())
+dice.show_roll()#print(dice.result_roll())
+"""
