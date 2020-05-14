@@ -25,13 +25,12 @@ while not game_over:
     dice.show_roll()
     roll = dice.result_roll()
     # check if move possible
+    
     check = CheckMovePossible(v1, v2, roll, player[p])
     if check: 
         row, pos = player_input()
         index, new_piece = get_index(row, pos)
-        print('index: ', index, 'new_piece: ', new_piece)
         v1, v2, off_p1, off_p2, is_rosette = UpdateV(v1, v2, player[p], roll, index, off_p1, off_p2, new_piece)
-        print('v1: ', v1, 'v2: ', v2, 'off_p1: ', off_p1, 'off_p2: ', off_p2, 'is_rosette: ', is_rosette)
         board = UpdateBoard(v1, v2)
         if is_rosette:
             p = p
