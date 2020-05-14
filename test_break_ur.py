@@ -20,9 +20,9 @@ row, pos = 'A', 5
 roll = 2
 v1 = [0]*14
 v2 = [0]*14
-check = CheckMovePossible(v1, v2, roll, 1)
+check = CheckMovePossible(v1, v2, roll, 1, 7, 7)
 index, new_piece = get_index(row, pos)
-v1, v2, off_p1, off_p2, is_rosette = UpdateV(v1, v2, player, roll, index, 0, 0, new_piece)
+v1, v2, new_p1, new_p2, off_p1, off_p2, is_rosette = UpdateV(v1, v2, player, roll, index, 7, 7, 0, 0, new_piece)
 board = UpdateBoard(v1, v2)
 if check == False:
     print("S1: Failed check. ")
@@ -44,7 +44,7 @@ player = 1
 v1, v2 = board_setup_1()
 board = UpdateBoard(v1, v2)
 roll = 4
-check = CheckMovePossible(v1, v2, roll, player)
+check = CheckMovePossible(v1, v2, roll, player, 4, 4)
 if check == True:
     print("S2: Failed check. ")
 else:
@@ -56,10 +56,12 @@ player = 2
 v1, v2 = board_setup_1()
 board = UpdateBoard(v1, v2)
 roll = 1
+new_p1 = 4
+new_p2 = 4
 row, pos = 'A', 7
-check = CheckMovePossible(v1, v2, roll, player)
+check = CheckMovePossible(v1, v2, roll, player, new_p1, new_p2)
 index, new_piece = get_index(row, pos)
-v1, v2, off_p1, off_p2, is_rosette = UpdateV(v1, v2, player, roll, index, 0, 0, new_piece)
+v1, v2, new_p1, new_p2, off_p1, off_p2, is_rosette = UpdateV(v1, v2, player, roll, index, new_p1, new_p2, 0, 0, new_piece)
 board = UpdateBoard(v1, v2)
 if check == False:
     print("S3: Failed check. ")
@@ -87,10 +89,12 @@ player = 1
 v1, v2 = board_setup_1()
 board = UpdateBoard(v1, v2)
 roll = 1
+new_p1 = 4
+new_p2 = 4
 row, pos = 'A', 8
-check = CheckMovePossible(v1, v2, roll, player)
+check = CheckMovePossible(v1, v2, roll, player, 4, 4)
 index, new_piece = get_index(row, pos)
-v1, v2, off_p1, off_p2, is_rosette = UpdateV(v1, v2, player, roll, index, 0, 0, new_piece)
+v1, v2, new_p1, new_p2, off_p1, off_p2, is_rosette = UpdateV(v1, v2, player, roll, index, new_p1, new_p2, 0, 0, new_piece)
 board = UpdateBoard(v1, v2)
 if check == False:
     print("S4: Failed check. ")
@@ -113,7 +117,7 @@ v1, v2 = board_setup_1()
 dice = Dice()
 dice.roll()
 roll = dice.result_roll()
-check = CheckMovePossible(v1, v2, roll, player)
+check = CheckMovePossible(v1, v2, roll, player, 4, 4)
 if roll > 0:
     if check != True:
         print("S5: Failed check. ")
