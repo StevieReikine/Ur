@@ -47,8 +47,7 @@ def PlayPiece(player, board, ind1, ind2):
         board[ind1][ind2] = '2'
     return board
 
-def MapVtoBoard(vector, player):
-    board = EmptyBoard()
+def MapVtoBoard(board, vector, player):
     PiecePos = [i for i, val in enumerate(vector) if val]   #get indices of '1' values in vector
     #print(PiecePos, player)
     if len(PiecePos) == 0:
@@ -73,8 +72,9 @@ def MapVtoBoard(vector, player):
     return board
 
 def UpdateBoard(v1, v2):
-    board = MapVtoBoard(v1, 1)
-    board = MapVtoBoard(v2, 2)
+    board = EmptyBoard()
+    board = MapVtoBoard(board, v1, 1)
+    board = MapVtoBoard(board, v2, 2)
     return board
 
 """
@@ -88,8 +88,8 @@ def DisplayBoard(v1, v2):
 #dice = 1 # for now, set value of dice roll here
 
 def CheckMovePossible(v1, v2, roll, player):
-    check = True
-    safe = 0
+    check = False
+    safe = 200
     if roll == 0:
         check = False
         return check
@@ -112,8 +112,10 @@ def CheckMovePossible(v1, v2, roll, player):
                         check = False
                     else:
                         check = True
+                        break
             if (i + roll) == 14:
                 check = True
+                break
     return check
     
 
@@ -131,21 +133,16 @@ def get_index(piece_row, piece_pos):
     #get index of the piece to move
     new_piece = False
     index = piece_pos
-    #print(index)
     if piece_row == 'A':
         if piece_pos < 5:
             index = 4 - index
-            #print(index)
         if piece_pos == 5:
             new_piece = True
-            index = 14 #just in case
-            #print(index)
+            index = -1 #just in case
         if piece_pos > 6:
             index = 20 - index
-            #print(index)
     if piece_row == 'B':
         index = index + 3
-        print(index)
     return index, new_piece
 
 #index, new_piece, is_rosette = get_index(piece_row, piece_pos)
@@ -156,6 +153,7 @@ def get_index(piece_row, piece_pos):
 
 def UpdateV(v1, v2, player, roll, index, off_p1, off_p2, new_piece):
     #move piece already on board
+    is_rosette = False 
     if new_piece is False:
         #check if moving off board
         if (index + roll) == 14:
@@ -173,19 +171,19 @@ def UpdateV(v1, v2, player, roll, index, off_p1, off_p2, new_piece):
                 v2[index] = 0
                 v2[index + roll] = 1
             #check if other player bumped
-            if player == 1:
-                if v2[index + roll] == 1:
-                    v2[index + roll] = 0
-            if player == 2:
-                if v1[index + roll] == 1:
-                    v1[index + roll] = 0
+            if (index + roll) > 3 and (index + roll) < 12:
+                if player == 1:
+                    if v2[index + roll] == 1:
+                        v2[index + roll] = 0
+                if player == 2:
+                    if v1[index + roll] == 1:
+                        v1[index + roll] = 0
     else:
         if player == 1:
-            v1[roll - 1] = 1
+            v1[roll + index] = 1
         if player == 2:
-            v2[roll - 1] = 1    
-    rosette = [3, 7, 13]
-    is_rosette = False    
+            v2[roll + index] = 1  
+    rosette = [3, 7, 13]   
     if (index + roll) in rosette:
         is_rosette = True
     return v1, v2, off_p1, off_p2, is_rosette
