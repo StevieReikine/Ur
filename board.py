@@ -1,4 +1,3 @@
-#board = []
 def EmptyBoard():
     empty = '\u25A2'
     rosette = '\u22A0'
@@ -18,28 +17,6 @@ def PrintBoard(board):
     print('A ' + "".join(board[0]) + '\n' + 'B ' + "".join(board[1]) + '\n' + 'A ' + "".join(board[2]) + '\n' + '  ' + "".join(num))
     #print(board)
 
-"""
-board = EmptyBoard(board)
-#PrintBoard(board)
-
-#define variables for two players
-player = [1 , 2]
-player1 = player[0]
-player2 = player[1]
-
-#define vectors for each players board position
-v1 = [0]*14     #for player 1, initialize to zeros
-v2 = [0]*14     #for player 2, initialize to zeros
-
-v1[3] = 1       #add 1 piece in test postiion
-v1[12] = 1
-v1[8] = 1
-v2[13] = 1       #add 1 piece in test position
-v2[4] = 1
-v2[7] = 1
-#print(v1, v2)
-"""
-
 def PlayPiece(player, board, ind1, ind2):
     if player == 1:
         board[ind1][ind2] = '1'
@@ -48,51 +25,45 @@ def PlayPiece(player, board, ind1, ind2):
     return board
 
 def MapVtoBoard(board, vector, player):
-    PiecePos = [i for i, val in enumerate(vector) if val]   #get indices of '1' values in vector
-    #print(PiecePos, player)
+    # get indices of '1' values in vector
+    PiecePos = [i for i, val in enumerate(vector) if val]   
+    # if board is empty, return
     if len(PiecePos) == 0:
         return board
     for Piece in PiecePos:
+        # define indices for pieces in row 'B'
         if Piece >3 & Piece < 12:
             ind1 = 1
             ind2 = Piece - 4
+        # define indices for pieces placed and not yet in 'B'
         if Piece < 4:
             ind2 = -1*(Piece - 3)
             if player == 1:
                 ind1 = 0
             if player == 2:
                 ind1 = 2
+        # define infices for pieces moved off of 'B'
         if Piece > 11:
             ind2 = -1*(Piece - 19)
             if player == 1:
                 ind1 = 0
             if player == 2:
                 ind1 = 2
+        # add player labels (as defined in PlayPiece for each player, eg '1' and '2')
         board = PlayPiece(player, board, ind1, ind2)
     return board
 
 def UpdateBoard(v1, v2):
+    # place all the boxes and rosettes as for an empy board
     board = EmptyBoard()
+    # place marker for places where player 1 has pieces
     board = MapVtoBoard(board, v1, 1)
+    # place marker for places where player 2 has pieces
     board = MapVtoBoard(board, v2, 2)
     return board
 
-"""
-def DisplayBoard(v1, v2):
-    board = EmptyBoard()
-
-    print(board)
-    return
-"""
-
-#dice = 1 # for now, set value of dice roll here
-
-def CheckMovePossible(v1, v2, roll, player):
-    check = False
+def safe_occupied(v1, v2, player):
     safe = 200
-    if roll == 0:
-        check = False
-        return check
     if player == 1:
         SpacesOccupied = [i for i, val in enumerate(v1) if val]
         if v2[7]:
@@ -101,36 +72,59 @@ def CheckMovePossible(v1, v2, roll, player):
         SpacesOccupied = [i for i, val in enumerate(v2) if val]
         if v1[7]:
             safe = 7
+    return safe, SpacesOccupied
+
+def CheckMove(v1, v2, player, roll, index, new_p1, new_p2):
+    check = False
+    safe, SpacesOccupied = safe_occupied(v1, v2, player)
+    # if placing a new piece, check that there are pieces to play
+    if index == -1:
+        if player == 1 and new_p1 == 0:
+            return check
+        if player == 2 and new_p2 == 0:
+            return check
+    # if the board is empty, any piece can be played
+    if SpacesOccupied == []:
+        check = True
+    # if there are pieces on the board
+    else:
+        # if the move over-shoots the board
+        if (index + roll) < 14: 
+            # check if the move hits own piece
+            if (index + roll) not in SpacesOccupied:
+                # and check if it hits the 'safe' piece of the opponent
+                if (index + roll) == safe:
+                    check = False
+                else:
+                    check = True
+        # check if the move takes the piece of the board
+        if (index + roll) == 14:
+            check = True
+    return check
+
+def CheckMovePossible(v1, v2, roll, player, new_p1, new_p2):
+    check = False
+    if roll == 0:
+        check = False
+        return check
+    safe, SpacesOccupied = safe_occupied(v1, v2, player)
     if SpacesOccupied == []:
         check = True
     else:
         SpacesOccupied.append(-1)
         for i in SpacesOccupied:
-            if (i + roll) < 14: 
-                if (i + roll) not in SpacesOccupied:
-                    if i + roll == safe:
-                        check = False
-                    else:
-                        check = True
-                        break
-            if (i + roll) == 14:
-                check = True
+            check = CheckMove(v1, v2, player, roll, i, new_p1, new_p2)
+            if check == True:
                 break
     return check
-    
-
-#check = CheckMovePossible([0]*8, [0]*8, dice, 1)
-#print(check)
 
 def player_input():
     piece_row = input("Which piece do you want to move? First enter row (A or B):  ")
     piece_pos = int(input("Which piece do you want to move? Now enter position (1-8):  "))
     return piece_row, piece_pos
 
-#piece_row, piece_pos = player_input()
-
 def get_index(piece_row, piece_pos):
-    #get index of the piece to move
+    # get index of the piece to move
     new_piece = False
     index = piece_pos
     if piece_row == 'A':
@@ -145,17 +139,11 @@ def get_index(piece_row, piece_pos):
         index = index + 3
     return index, new_piece
 
-#index, new_piece, is_rosette = get_index(piece_row, piece_pos)
-##print(index, new_piece, is_rosette)
-
-#off_p1 = 0
-##off_p2 = 0
-
-def UpdateV(v1, v2, player, roll, index, off_p1, off_p2, new_piece):
-    #move piece already on board
+def UpdateV(v1, v2, player, roll, index, new_p1, new_p2, off_p1, off_p2, new_piece):
+    # move piece already on board
     is_rosette = False 
     if new_piece is False:
-        #check if moving off board
+        # check if moving off board
         if (index + roll) == 14:
             if player == 1:
                 v1[index] = 0
@@ -170,7 +158,7 @@ def UpdateV(v1, v2, player, roll, index, off_p1, off_p2, new_piece):
             if player == 2:
                 v2[index] = 0
                 v2[index + roll] = 1
-            #check if other player bumped
+            # check if other player bumped
             if (index + roll) > 3 and (index + roll) < 12:
                 if player == 1:
                     if v2[index + roll] == 1:
@@ -178,19 +166,18 @@ def UpdateV(v1, v2, player, roll, index, off_p1, off_p2, new_piece):
                 if player == 2:
                     if v1[index + roll] == 1:
                         v1[index + roll] = 0
+    # move new piece onto board
     else:
         if player == 1:
             v1[roll + index] = 1
+            new_p1 -= 1
         if player == 2:
             v2[roll + index] = 1  
+            new_p2 -= 1
     rosette = [3, 7, 13]   
     if (index + roll) in rosette:
         is_rosette = True
-    return v1, v2, off_p1, off_p2, is_rosette
-
-#print(v1, v2)
-#v1, v2, off_p1, off_p2 = UpdateV(v1, v2, 1, dice, index, off_p1, off_p2)
-#print(v1, v2, off_p1, off_p2)
+    return v1, v2, new_p1, new_p2, off_p1, off_p2, is_rosette
 
 def Winner(off_p1, off_p2):
     game_over = False
